@@ -12,27 +12,24 @@ class HashTable:
     A hash table that with `capacity` buckets
     that accepts string keys
     '''
-    def __init__(self, capacity):
+    def __init__(self, capacity=1):
+        self.count = 0
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
 
 
     def _hash(self, key):
-        '''
-        Hash an arbitrary key and return an integer.
-
-        You may replace the Python hash with DJB2 as a stretch goal.
-        '''
-        return hash(key)
+        for i in range(100000):
+            hash_value = hash(key)
+        return hash_value
 
 
     def _hash_djb2(self, key):
-        '''
-        Hash an arbitrary key using DJB2 hash
-
-        OPTIONAL STRETCH: Research and implement DJB2
-        '''
-        pass
+        hash_value = 5381
+        # Bit-shift and sum value for each character
+        for char in key:
+            hash_value = ((hash_value << 5) + hash_value) + char
+        return hash_value
 
 
     def _hash_mod(self, key):
@@ -42,6 +39,16 @@ class HashTable:
         '''
         return self._hash(key) % self.capacity
 
+
+    def resize(self):
+        # Double capacity
+        self.capacity *= 2
+        # Allocate a new storage array with double capacity
+        new_storage = [None] * self.capacity
+        # Copy all elements from old storage to new
+        for i in range(self.count):
+            new_storage[i] = self.storage[i]
+        self.storage = new_storage
 
     def insert(self, key, value):
         '''
@@ -54,7 +61,16 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        if self.count >= self.capacity:
+            # If not, add more capacity
+            self.resize()
+        # Shift over every item after index to the right by 1
+        for i in range(self.count, key, -1):
+            self.storage[i] = self.storage[i-1]
+        # Add the new value to the key
+        self.storage[key] = value
+        # Increment count
+        self.count += 1
 
 
 
