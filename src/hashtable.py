@@ -15,24 +15,20 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
+        self.size = len(self.storage)
 
 
     def _hash(self, key):
-        '''
-        Hash an arbitrary key and return an integer.
-
-        You may replace the Python hash with DJB2 as a stretch goal.
-        '''
-        return hash(key)
+        for i in range(100000):
+            hash_value = hash(key)
+        return hash_value
 
 
     def _hash_djb2(self, key):
-        '''
-        Hash an arbitrary key using DJB2 hash
-
-        OPTIONAL STRETCH: Research and implement DJB2
-        '''
-        pass
+        hash = 5381
+        for char in key:
+            hash = (hash * 33) + ord(char)
+        return hash % self.capacity
 
 
     def _hash_mod(self, key):
@@ -42,6 +38,19 @@ class HashTable:
         '''
         return self._hash(key) % self.capacity
 
+
+    def resize(self):
+        self.capacity *= 2
+        old_storage = self.storage
+        new_storage = [None] * self.capacity
+        self.storage = new_storage
+        
+        for i in range(len(old_storage)):
+            if old_storage[i] is not None:
+                pair = old_storage[i]
+                while pair is not None:
+                    self.insert(pair.key, pair.value)
+                    pair = pair.next
 
     def insert(self, key, value):
         '''
@@ -54,7 +63,15 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        i = self._hash_djb2(key)
+
+        if self.storage[i] is not None:
+            # collision
+            new_pair = LinkedPair(key, value)
+            new_pair.next = self.storage[i]
+            self.storage[i] = new_pair
+        else:
+            self.storage[i] = LinkedPair(key, value)
 
 
 
@@ -66,7 +83,21 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        i = self._hash_djb2(key)
+        pair = self.storage[i]
+
+        if pair == None:
+            print('Warning: key not found')
+
+        while pair.key is not key:
+            pair = pair.next
+
+        if pair.value == None:
+            return None
+        else:
+            pair.value = None
+
+        return None
 
 
     def retrieve(self, key):
@@ -77,17 +108,16 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        i = self._hash_djb2(key)
+        pair = self.storage[i]
 
+        while pair is not None:
+            if pair.key == key:
+                return pair.value
+            pair = pair.next
+        
+        return None
 
-    def resize(self):
-        '''
-        Doubles the capacity of the hash table and
-        rehash all key/value pairs.
-
-        Fill this in.
-        '''
-        pass
 
 
 
